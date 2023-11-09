@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: teebay
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  backend:
+    build: ./tee-bay-backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@postgres/teebay
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+  frontend:
+    build: ./tee-bay-frontend
+    environment:
+      - REACT_APP_GRAPHQL_URL=http://localhost:8000/graphql
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+volumes:
+  postgres_data:
